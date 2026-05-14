@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --syne: 'Syne', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Instrument Sans', sans-serif;
+  --r: 12px;
+  --rl: 16px;
+  --transition: all .2s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── DARK ── */
+[data-theme="dark"] {
+  --bg:      #060810;
+  --bg2:     #0c1120;
+  --bg3:     #131c2e;
+  --bg4:     #1c2840;
+  --glass:   rgba(255,255,255,0.06);
+  --glassbr: rgba(255,255,255,0.09);
+  --border:  rgba(255,255,255,0.12);
+  --brd2:    rgba(255,255,255,0.22);
+  /* AA対応テキスト - コントラスト比4.5:1以上 */
+  --text:    #f0f4ff;
+  --text2:   #b0bdd4;
+  --text3:   #7a8faa;
+  --accent:  #5b9cf6;
+  --accent2: #818cf8;
+  --green:   #34d399;
+  --red:     #fb7185;
+  --amber:   #fbbf24;
+  --purple:  #c084fc;
+  --glow-blue:  0 0 40px rgba(91,156,246,0.2);
+  --glow-green: 0 0 40px rgba(52,211,153,0.15);
+}
+
+/* ── LIGHT ── */
+[data-theme="light"] {
+  --bg:      #e8edf5;
+  --bg2:     #f5f7fc;
+  --bg3:     #dce3ee;
+  --bg4:     #c8d2e2;
+  /* AA対応テキスト */
+  --glass:   rgba(255,255,255,0.85);
+  --glassbr: rgba(255,255,255,0.97);
+  --border:  rgba(0,0,0,0.14);
+  --brd2:    rgba(0,0,0,0.22);
+  --text:    #0d1526;
+  --text2:   #2d4060;
+  --text3:   #4a5e7a;
+  --accent:  #1d4ed8;
+  --accent2: #4338ca;
+  --green:   #047857;
+  --red:     #be123c;
+  --amber:   #b45309;
+  --purple:  #7e22ce;
+  --glow-blue:  0 4px 24px rgba(29,78,216,0.14);
+  --glow-green: 0 4px 24px rgba(4,120,87,0.12);
+}
+
+html { font-size: 19px; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background .3s, color .3s;
+}
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(59,130,246,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(99,102,241,0.07) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--brd2); border-radius: 2px; }
+button { font-family: var(--sans); cursor: pointer; border: none; outline: none; }
+
+.card {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--rl);
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--glassbr) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  html { font-size: 16px; }
+}
+@media (max-width: 480px) {
+  html { font-size: 15px; }
+  .legend-label { display: none; }
+}
