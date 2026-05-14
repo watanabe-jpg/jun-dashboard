@@ -1,0 +1,50 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to NAS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          username: "Jun Watanabe"
+          key: ${{ secrets.NAS_SSH_KEY }}
+          script: |
+            cp -r /volume1/docker/jun-dashboard/dist /volume1/docker/jun-dashboard/dist.bak 2>/dev/null || true
+            rm -rf /volume1/docker/jun-dashboard/dist/*
+
+      - name: Copy dist to NAS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          username: "Jun Watanabe"
+          key: ${{ secrets.NAS_SSH_KEY }}
+          source: "dist/*"
+          target: "/volume1/docker/jun-dashboard/"
+
+      - name: Fix permissions and reload
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          username: "Jun Watanabe"
+          key: ${{ secrets.NAS_SSH_KEY }}
+          script: |
+            sudo chmod -R 755 /volume1/docker/jun-dashboard
+            docker restart $(docker ps -q --filter "name=jun-dashboard") 2>/dev/null || true
