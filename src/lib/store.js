@@ -119,3 +119,59 @@ export function cycleAlcohol(state, date) {
 export const latestRide = s => s.rides.at(-1) || null;
 export const latestBody = s => s.bodyComp.at(-1) || null;
 export const prevBody   = s => s.bodyComp.at(-2) || null;
+
+// JSONエクスポート：現在のstateをJSONファイルとしてダウンロード
+export function exportJSON(state) {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `jun_fitness_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// JSONインポート：ファイルからstateを復元
+export function importJSON(file, onSuccess, onError) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.rides || !data.bodyComp) throw new Error('不正なフォーマット');
+      saveState(data);
+      onSuccess(data);
+    } catch(err) {
+      onError('JSONの読み込みに失敗しました: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// JSON1行入力：クロードが出力するJSONオブジェクトを1件適用
+export function applyJSONEntry(state, jsonText) {
+  const entry = JSON.parse(jsonText.trim());
+  let s = state;
+
+  if (entry.ride) {
+    const r = entry.ride;
+    if (!r.date) throw new Error('dateが必要です');
+    s = { ...s, rides: [...s.rides.filter(x=>x.date!==r.date), r].sort((a,b)=>a.date.localeCompare(b.date)) };
+  }
+  if (entry.body) {
+    const b = entry.body;
+    if (!b.date) throw new Error('dateが必要です');
+    s = { ...s, bodyComp: [...s.bodyComp.filter(x=>x.date!==b.date), b].sort((a,b)=>a.date.localeCompare(b.date)) };
+  }
+  if (entry.walk) {
+    const w = entry.walk;
+    if (!w.date) throw new Error('dateが必要です');
+    s = { ...s, walks: [...(s.walks||[]).filter(x=>x.date!==w.date), w].sort((a,b)=>a.date.localeCompare(b.date)) };
+  }
+  if (entry.alcohol) {
+    s = { ...s, alcohol: { ...s.alcohol, ...entry.alcohol } };
+  }
+  if (entry.note) {
+    s = { ...s, notes: { ...(s.notes||{}), ...entry.note } };
+  }
+  return s;
+}
